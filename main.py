@@ -13,6 +13,8 @@ cocktails = []
 ingredients = []
 ingredients_listvar = StringVar(value=ingredients)
 
+has_image = False
+
 
 # buttons
 def add_cocktail():
@@ -32,6 +34,9 @@ def add_cocktail():
 
 
 def add_ingredient():
+    """Runs when Add button pressed - Adds text from input_ingredients TKInter object to
+    ingredients list and then ingredients_listvar listbox object. Clears input box and updates UI
+    TODO: Add second input box to handle weights and quantities"""
     ingredients.append(input_ingredients.get())
     ingredients_listvar.set(ingredients)
     input_ingredients.delete(0, 'end')
@@ -39,22 +44,38 @@ def add_ingredient():
 
 
 def del_ingredient():
-    ingredients_listvar
+    """Runs when Del button pressed - Deletes a item from TKInter listbox object and ingredients
+    python list
+    TODO: Multi selection functionality"""
+    selected = ingredients_listbox.curselection()
+    ingredients_listbox.delete(selected)
+    item = selected.__getitem__(0)
+    ingredients.__delitem__(item)
 
 
 def get_image():
+    """Fetch file chooser and format canvas to fit image
+    TODO: Can this function can be broken down into separate parts to help with multi canvas bug?"""
     # image
     # https://www.c-sharpcorner.com/blogs/basics-for-displaying-image-in-tkinter-python
-    image_frame.canvas = Canvas(image_frame, width=300, height=400, bg="grey")
-    image_frame.canvas.grid(column=0, row=3)
     file_path = filedialog.askopenfilename()
-    img = crop_image(img=Image.open(file_path))
-    print_image_size(img)
+    img = Image.open(file_path)
     bg_image = ImageTk.PhotoImage(scale_image(img=img))
-    print(bg_image.width())
-    print(bg_image.height())
+    # print(bg_image.width())
+    # print(bg_image.height())
+    image_frame.canvas = Canvas(image_frame, width=bg_image.width(),
+                                height=bg_image.height(), bg="grey")
     image_frame.canvas.bg_image = bg_image
-    image_frame.canvas.create_image(150, 200, image=image_frame.canvas.bg_image)
+    image_frame.canvas.create_image(bg_image.width() / 2, bg_image.height() / 2,
+                                    image=image_frame.canvas.bg_image)
+    image_frame.canvas.grid(column=0, row=1, columnspan=3)
+
+
+def has_image():
+    """Check to see if an image already exists in the UI
+    TODO: Make algorithm for image check to fix multiple canvas creations"""
+
+    return True
 
 
 def crop_image(img):
@@ -71,7 +92,7 @@ def crop_image(img):
 def scale_image(img):
     """https://www.codegrepper.com/code-examples/python/how+to+resize+image+in+python+tkinter"""
     h, w = img.size
-    img_scale = .45
+    img_scale = .25
     print_image_size(img)
     w = round(w * img_scale)
     h = round(h * img_scale)
@@ -117,36 +138,34 @@ title_lable.grid(column=0, row=0)"""
 
 # input
 input_name = Entry(entry_frame)
-input_name.grid(column=0, row=1)
+input_name.grid(column=0, row=0)
 
 input_ingredients = Entry(ingredient_frame)
-input_ingredients.grid(column=0, row=1)
+input_ingredients.grid(column=0, row=0)
 
 input_directions = Text(directions_frame, height=18, padx=5, pady=5, selectborderwidth=5,
                         wrap=WORD)
-input_directions.grid(column=0, row=1)
+input_directions.grid(column=0, row=0)
 
 input_image = Entry(image_frame)
-input_image.grid(column=0, row=1)
+input_image.grid(column=0, row=0, sticky=(N, E))
 
 # buttons
 add_drink_button = Button(entry_frame, text="Add", command=add_cocktail)
-add_drink_button.grid(column=1, row=1, sticky=(N, W, E), padx=3, pady=2)
+add_drink_button.grid(column=1, row=0, sticky=(N, W, E), padx=3, pady=2)
 
 add_ingredient_button = Button(ingredient_frame, text="Add", command=add_ingredient)
-add_ingredient_button.grid(column=1, row=1, sticky=(N, W, E), padx=3, pady=2)
+add_ingredient_button.grid(column=1, row=0, sticky=(N, W, E), padx=3, pady=2)
 
 del_ingredient_button = Button(ingredient_frame, text="Del", command=del_ingredient)
-del_ingredient_button.grid(column=1, row=2, sticky=(N, W, E), padx=3, pady=2)
+del_ingredient_button.grid(column=1, row=1, sticky=(N, W, E), padx=3, pady=2)
 
 get_image_button = Button(image_frame, text="Img", command=get_image)
-get_image_button.grid(column=1, row=1, sticky=(N, W, E), padx=3, pady=2)
+get_image_button.grid(column=1, row=0, sticky=(N, W), padx=3, pady=2)
 
 # listbox
 ingredients_listbox = Listbox(ingredient_frame, listvariable=ingredients_listvar)
-ingredients_listbox.grid(column=0, row=2)
-
-
+ingredients_listbox.grid(column=0, row=1)
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
